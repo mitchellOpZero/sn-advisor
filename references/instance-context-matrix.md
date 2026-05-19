@@ -51,4 +51,4 @@ Read-only instance context suggestions by task type.
 - table hierarchy metadata
 - user criteria tables where relevant
 
-Do not read credential/secret tables.
+Table access is governed by ServiceNow ACLs for the selected SDK auth profile. The advisor does not maintain a separate table denylist by default. Query any readable table/field when it is relevant to the task, subject to max record limits.

@@ -17,7 +17,7 @@ Expected profile discovery:
 npx @servicenow/sdk auth --list
 ```
 
-Use the configured default alias if present. Otherwise ask the user which alias to use.
+Use the configured default alias if present. Otherwise ask the user which alias to use. The selected profile's ServiceNow ACLs are the access boundary.
 
 ## Hard guardrails
 
@@ -27,9 +27,10 @@ Use the configured default alias if present. Otherwise ask the user which alias 
 - No build/publish side effects.
 - No fix scripts.
 - No background scripts.
-- No credential table reads.
-- No secrets in output.
-- Respect table allowlist/denylist.
+- ServiceNow ACLs and the selected SDK auth profile determine what can be read.
+- Any table and any readable field may be queried when useful for the task.
+- Do not maintain an advisor-owned table denylist by default.
+- Do not redact field values by default; trust ServiceNow ACLs and the selected profile.
 - Respect max record limits.
 
 ## Useful context by task

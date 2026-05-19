@@ -137,34 +137,10 @@ Example:
   ],
   "instance_readonly": {
     "enabled": true,
-    "allow_tables": [
-      "sys_properties",
-      "sys_user_preference",
-      "sys_plugins",
-      "sys_script",
-      "sys_script_client",
-      "sys_ui_policy",
-      "sys_security_acl",
-      "sys_dictionary",
-      "sys_db_object",
-      "sys_update_xml",
-      "sys_upgrade_history",
-      "sys_upgrade_history_log",
-      "incident",
-      "sc_cat_item",
-      "item_option_new",
-      "sys_flow_context"
-    ],
-    "deny_tables": [
-      "sys_user",
-      "sys_user_has_role",
-      "oauth_credential",
-      "basic_auth_credentials",
-      "discovery_credentials",
-      "ecc_agent_credential"
-    ],
+    "table_access_policy": "service_now_acl_only",
     "max_records_per_query": 100,
-    "http_methods_allowed": ["GET"]
+    "http_methods_allowed": ["GET"],
+    "redaction": "none"
   }
 }
 ```
@@ -196,6 +172,8 @@ Expected behavior:
 - Query instance context only when helpful for the task.
 - Enforce read-only behavior.
 - Use only GET/read operations.
+- Read any table/field the selected ServiceNow SDK auth profile can read under ServiceNow ACLs, subject to max record limits.
+- Do not apply advisor-owned table denylists or field redaction by default.
 - Never deploy, update, delete, run fix scripts, execute background scripts, or modify source.
 
 Potential helper script:
@@ -207,9 +185,9 @@ scripts/sn-readonly-query.mjs
 Guardrails:
 
 - HTTP GET only.
-- Table allowlist/denylist.
-- Max record limits.
-- No credential/secret tables.
+- ServiceNow ACLs and the selected SDK auth profile determine what can be read.
+- Any table and any readable field may be queried, subject to ACLs and max record limits.
+- No advisor-maintained table denylist or field redaction by default.
 - No background script execution.
 - No deploy/build/update commands.
 
