@@ -1,0 +1,17 @@
+{
+  "name": "servicenow-advisor",
+  "owner": {
+    "name": "OperatorZero"
+  },
+  "plugins": [
+    {
+      "name": "advisor",
+      "source": "./providers/claude/plugin/",
+      "description": "Read-only ServiceNow task advisor using configurable online resources and SDK auth profiles for instance context.",
+      "version": "0.1.0",
+      "author": {
+        "name": "OperatorZero"
+      }
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "mode": "manual",
+  "default_instance_alias": "dev",
+  "web_search": {
+    "enabled": true,
+    "max_results_per_tier": 5,
+    "include_low_confidence_sources": true,
+    "require_citations": true
+  },
+  "sources": {
+    "tier_1_official": [
+      "https://www.servicenow.com/docs",
+      "https://developer.servicenow.com",
+      "https://servicenow.github.io/sdk",
+      "https://github.com/ServiceNow",
+      "https://support.servicenow.com"
+    ],
+    "tier_2_community": [
+      "https://www.servicenow.com/community"
+    ],
+    "tier_3_practitioner": [
+      "https://www.servicenow.com/blogs",
+      "https://nowlearning.servicenow.com",
+      "https://github.com"
+    ],
+    "tier_4_weak_signals": [
+      "https://reddit.com",
+      "https://stackoverflow.com",
+      "https://medium.com",
+      "https://linkedin.com",
+      "https://youtube.com"
+    ]
+  },
+  "blocked_domains": [],
+  "preferred_domains": [
+    "servicenow.com",
+    "developer.servicenow.com",
+    "support.servicenow.com"
+  ],
+  "instance_readonly": {
+    "enabled": true,
+    "allow_tables": [
+      "sys_properties",
+      "sys_user_preference",
+      "sys_plugins",
+      "sys_script",
+      "sys_script_client",
+      "sys_ui_policy",
+      "sys_security_acl",
+      "sys_dictionary",
+      "sys_db_object",
+      "sys_update_xml",
+      "sys_upgrade_history",
+      "sys_upgrade_history_log",
+      "incident",
+      "sc_cat_item",
+      "item_option_new",
+      "sys_flow_context"
+    ],
+    "deny_tables": [
+      "sys_user",
+      "sys_user_has_role",
+      "oauth_credential",
+      "basic_auth_credentials",
+      "discovery_credentials",
+      "ecc_agent_credential"
+    ],
+    "max_records_per_query": 100,
+    "http_methods_allowed": ["GET"]
+  }
+}
