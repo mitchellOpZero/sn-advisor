@@ -9,7 +9,7 @@ This skill routes ServiceNow advisory work. It is intentionally narrow so it can
 
 ## Use this skill when
 
-- The user explicitly invokes `/advisor`.
+- The user explicitly invokes `/sn-advisor`.
 - The user asks for ServiceNow research.
 - The user asks for current docs/community/support signals.
 - The user asks for best practices.

@@ -2,7 +2,7 @@
 
 Read-only ServiceNow task advisor for Claude Code.
 
-`/advisor` researches a ServiceNow task across official docs, support KBs, and community sources, ranks every source by trust, optionally checks **read-only** instance context through your ServiceNow SDK auth profiles, and returns a cited advisory brief: key findings, risks and watchouts, recommended next checks, and a test plan. It never changes your instance.
+`/sn-advisor` researches a ServiceNow task across official docs, support KBs, and community sources, ranks every source by trust, optionally checks **read-only** instance context through your ServiceNow SDK auth profiles, and returns a cited advisory brief: key findings, risks and watchouts, recommended next checks, and a test plan. It never changes your instance.
 
 It is designed to run alongside the official ServiceNow SDK plugin for Claude Code: SN Advisor handles research, risk assessment, and grounding; the official SDK plugin handles implementation, Fluent/SDK code generation, builds, and deploys.
 
@@ -13,15 +13,15 @@ claude plugin marketplace add mitchellOpZero/sn-advisor
 claude plugin install advisor@sn-advisor
 ```
 
-Restart your Claude Code session and `/advisor` is available.
+Restart your Claude Code session and `/sn-advisor` is available.
 
 ## Use
 
 ```text
-/advisor what should I look out for before changing ServiceNow user experience during an upgrade?
-/advisor assess risk before changing Incident assignment rules
-/advisor research docs/community and check instance context for catalog cleanup
-/advisor what should we test before enabling Next Experience?
+/sn-advisor what should I look out for before changing ServiceNow user experience during an upgrade?
+/sn-advisor assess risk before changing Incident assignment rules
+/sn-advisor research docs/community and check instance context for catalog cleanup
+/sn-advisor what should we test before enabling Next Experience?
 ```
 
 Every brief includes:
@@ -66,7 +66,7 @@ Config lookup order:
 
 See [examples/sn-advisor.config.example.json](examples/sn-advisor.config.example.json) for the full shape — allowed source tiers, blocked/preferred domains, web search options, instance read-only limits, and the operating mode:
 
-- `manual` (default, recommended): runs only on `/advisor`.
+- `manual` (default, recommended): runs only on `/sn-advisor`.
 - `advisor_first`: runs before implementation for research/risk/upgrade/troubleshooting prompts.
 - `passive`: available if referenced, never proactive.
 - `disabled`: installed but inactive.
@@ -77,10 +77,10 @@ Both plugins can be active together. Use this split:
 
 | Need | Use |
 |---|---|
-| Research, current docs, community signals, risk assessment, best practices, upgrade readiness, troubleshooting context | `/advisor` |
+| Research, current docs, community signals, risk assessment, best practices, upgrade readiness, troubleshooting context | `/sn-advisor` |
 | Create/edit Fluent code, build, deploy, transform, implement ServiceNow changes | Official ServiceNow SDK plugin |
 
-The advisor does not trigger on every ServiceNow mention; manual invocation through `/advisor` is the default.
+The advisor does not trigger on every ServiceNow mention; manual invocation through `/sn-advisor` is the default.
 
 ## Repository layout
 
@@ -88,7 +88,7 @@ The advisor does not trigger on every ServiceNow mention; manual invocation thro
 .claude-plugin/marketplace.json        # marketplace: sn-advisor
 providers/claude/plugin/               # the installable Claude Code plugin
   .claude-plugin/plugin.json
-  commands/advisor.md                  # /advisor
+  commands/sn-advisor.md               # /sn-advisor
   skills/                              # router, source ranking, read-only instance, output templates
   references/                          # default sources, trust policy, task & instance matrices
 examples/sn-advisor.config.example.json
