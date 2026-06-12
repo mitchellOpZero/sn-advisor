@@ -1,14 +1,21 @@
-# ServiceNow Advisor for Claude Code
+# SN Advisor by OperatorZero
 
 Read-only ServiceNow task advisor for Claude Code.
 
-This plugin is intended to run alongside the official ServiceNow SDK Claude Code plugin. The official SDK plugin remains responsible for implementation, Fluent/SDK code generation, builds, deploys, and SDK documentation lookups. This advisor plugin is responsible for research, risk assessment, source ranking, and read-only instance context.
+`/advisor` researches a ServiceNow task across official docs, support KBs, and community sources, ranks every source by trust, optionally checks **read-only** instance context through your ServiceNow SDK auth profiles, and returns a cited advisory brief: key findings, risks and watchouts, recommended next checks, and a test plan. It never changes your instance.
 
-## TL;DR
+It is designed to run alongside the official ServiceNow SDK plugin for Claude Code: SN Advisor handles research, risk assessment, and grounding; the official SDK plugin handles implementation, Fluent/SDK code generation, builds, and deploys.
 
-Use `/advisor ...` when you want a grounded advisory pass before doing ServiceNow work.
+## Install
 
-Examples:
+```bash
+claude plugin marketplace add mitchellOpZero/sn-advisor
+claude plugin install advisor@sn-advisor
+```
+
+Restart your Claude Code session and `/advisor` is available.
+
+## Use
 
 ```text
 /advisor what should I look out for before changing ServiceNow user experience during an upgrade?
@@ -17,277 +24,76 @@ Examples:
 /advisor what should we test before enabling Next Experience?
 ```
 
-The advisor:
+Every brief includes:
 
-- Pulls online resources relevant to the ServiceNow task.
-- Lets users configure which sources/domains are allowed.
-- Ranks sources by trust.
-- Uses ServiceNow SDK auth profiles for read-only instance context.
-- Produces risks, watchouts, checklists, citations, and test plans.
-- Makes no instance changes.
-- Hands off implementation to the official ServiceNow SDK plugin.
+- Task understood and assumptions
+- Sources checked, separated by trust tier
+- Read-only instance context checked (when an SDK auth profile is available)
+- Key findings and instance-specific observations
+- Risks / watchouts
+- Recommended next checks and a suggested test plan
+- Confidence, and what could not be verified
+- An implementation handoff to the official ServiceNow SDK plugin when changes are needed
+
+## Source trust tiers
+
+The advisor uses all configured sources but labels confidence clearly:
+
+1. **Tier 1 — Official**: ServiceNow docs, developer docs, support KBs, release notes, official GitHub.
+2. **Tier 2 — Community**: ServiceNow Community accepted answers/articles, ServiceNow employee/MVP posts.
+3. **Tier 3 — Practitioner**: practitioner blogs, partner posts, non-official GitHub examples, StackOverflow.
+4. **Tier 4 — Weak signals**: Reddit, LinkedIn, YouTube, unverified forums.
+
+Claims are labeled as official guidance, community signal, practitioner advice, weak/unverified signal, or instance-confirmed finding. See [source-trust-policy.md](providers/claude/plugin/references/source-trust-policy.md).
+
+## Read-only instance context
+
+When useful, the advisor reads live instance context through your existing **ServiceNow SDK auth profiles** (`npx @servicenow/sdk auth --list`). Guardrails:
+
+- HTTP GET only — no POST/PUT/PATCH/DELETE, no deploys, no fix or background scripts.
+- ServiceNow ACLs and the selected auth profile are the access boundary; the advisor adds no credentials of its own.
+- Record limits are enforced (default 100 per query).
+
+If no profile is available, the advisor says what it could not verify and continues with online sources only.
+
+## Configuration
+
+Config lookup order:
+
+1. Project: `.sn-advisor.json`
+2. User: `~/.sn-advisor/config.json`
+3. Plugin defaults: [default-resources.json](providers/claude/plugin/references/default-resources.json)
+
+See [examples/sn-advisor.config.example.json](examples/sn-advisor.config.example.json) for the full shape — allowed source tiers, blocked/preferred domains, web search options, instance read-only limits, and the operating mode:
+
+- `manual` (default, recommended): runs only on `/advisor`.
+- `advisor_first`: runs before implementation for research/risk/upgrade/troubleshooting prompts.
+- `passive`: available if referenced, never proactive.
+- `disabled`: installed but inactive.
 
 ## Relationship to the official ServiceNow SDK plugin
 
-Both plugins can be active together.
-
-Use this split:
+Both plugins can be active together. Use this split:
 
 | Need | Use |
 |---|---|
 | Research, current docs, community signals, risk assessment, best practices, upgrade readiness, troubleshooting context | `/advisor` |
 | Create/edit Fluent code, build, deploy, transform, implement ServiceNow changes | Official ServiceNow SDK plugin |
 
-Do not make the advisor trigger on every ServiceNow mention. That will fight the SDK plugin. The safest default is manual invocation through `/advisor`.
+The advisor does not trigger on every ServiceNow mention; manual invocation through `/advisor` is the default.
 
-## Default operating mode
-
-Default mode should be:
-
-```json
-{
-  "mode": "manual"
-}
-```
-
-Supported modes:
-
-- `manual`: only runs when the user invokes `/advisor`.
-- `advisor_first`: runs before implementation for research/risk/best-practice/upgrade/troubleshooting prompts.
-- `passive`: available if referenced, but does not proactively run.
-- `disabled`: installed but inactive.
-
-Recommended MVP: `manual` only.
-
-## Advisor-first trigger policy
-
-If users later enable `advisor_first`, it should trigger for prompts like:
-
-- "what should I look out for"
-- "best practices"
-- "research this"
-- "check docs/community"
-- "assess risk"
-- "upgrade readiness"
-- "before we implement"
-- "troubleshoot with docs/community"
-
-It should not trigger for direct implementation prompts like:
-
-- "create a Business Rule"
-- "write Fluent code"
-- "deploy this app"
-- "update this table"
-- "generate SDK code"
-- "build the package"
-
-For those, the official ServiceNow SDK plugin should run first.
-
-## Configurable resources
-
-Users should be able to configure the resources the advisor can pull from.
-
-Config lookup order:
-
-1. Project: `.servicenow-advisor.json`
-2. User: `~/.servicenow-advisor/config.json`
-3. Plugin defaults: `references/default-resources.json`
-
-Example:
-
-```json
-{
-  "mode": "manual",
-  "default_instance_alias": "dev",
-  "web_search": {
-    "enabled": true,
-    "max_results_per_tier": 5,
-    "include_low_confidence_sources": true,
-    "require_citations": true
-  },
-  "sources": {
-    "tier_1_official": [
-      "https://www.servicenow.com/docs",
-      "https://developer.servicenow.com",
-      "https://servicenow.github.io/sdk",
-      "https://github.com/ServiceNow",
-      "https://support.servicenow.com"
-    ],
-    "tier_2_community": [
-      "https://www.servicenow.com/community"
-    ],
-    "tier_3_practitioner": [
-      "https://www.servicenow.com/blogs",
-      "https://nowlearning.servicenow.com",
-      "https://github.com"
-    ],
-    "tier_4_weak_signals": [
-      "https://reddit.com",
-      "https://stackoverflow.com",
-      "https://medium.com",
-      "https://linkedin.com",
-      "https://youtube.com"
-    ]
-  },
-  "blocked_domains": [],
-  "preferred_domains": [
-    "servicenow.com",
-    "developer.servicenow.com",
-    "support.servicenow.com"
-  ],
-  "instance_readonly": {
-    "enabled": true,
-    "table_access_policy": "service_now_acl_only",
-    "max_records_per_query": 100,
-    "http_methods_allowed": ["GET"],
-    "redaction": "none"
-  }
-}
-```
-
-## Source trust tiers
-
-The advisor should use all configured sources, but label confidence clearly.
-
-1. Tier 1: official ServiceNow docs, developer docs, support KBs, release notes, official GitHub.
-2. Tier 2: ServiceNow Community accepted answers/articles, ServiceNow employee/MVP posts.
-3. Tier 3: practitioner blogs, partner posts, non-official GitHub examples, StackOverflow.
-4. Tier 4: Reddit, LinkedIn, YouTube, random forums, unverified comments.
-
-Output should label claims as:
-
-- Official guidance
-- Community signal
-- Practitioner advice
-- Weak/unverified signal
-- Instance-confirmed finding
-
-## Read-only instance context
-
-Use ServiceNow SDK auth profiles only.
-
-Expected behavior:
-
-- List or use configured SDK auth profiles.
-- Query instance context only when helpful for the task.
-- Enforce read-only behavior.
-- Use only GET/read operations.
-- Read any table/field the selected ServiceNow SDK auth profile can read under ServiceNow ACLs, subject to max record limits.
-- Do not apply advisor-owned table denylists or field redaction by default.
-- Never deploy, update, delete, run fix scripts, execute background scripts, or modify source.
-
-Potential helper script:
+## Repository layout
 
 ```text
-scripts/sn-readonly-query.mjs
+.claude-plugin/marketplace.json        # marketplace: sn-advisor
+providers/claude/plugin/               # the installable Claude Code plugin
+  .claude-plugin/plugin.json
+  commands/advisor.md                  # /advisor
+  skills/                              # router, source ranking, read-only instance, output templates
+  references/                          # default sources, trust policy, task & instance matrices
+examples/sn-advisor.config.example.json
 ```
 
-Guardrails:
+## License
 
-- HTTP GET only.
-- ServiceNow ACLs and the selected SDK auth profile determine what can be read.
-- Any table and any readable field may be queried, subject to ACLs and max record limits.
-- No advisor-maintained table denylist or field redaction by default.
-- No background script execution.
-- No deploy/build/update commands.
-
-## Output template
-
-The advisor should return:
-
-```text
-ServiceNow Advisor Brief
-
-Task understood:
-
-Assumptions:
-
-Sources checked:
-- Official:
-- Community:
-- Practitioner/other:
-
-Instance context checked:
-
-Key findings:
-
-Instance-specific observations:
-
-Risks / watchouts:
-
-Recommended next checks:
-
-Suggested test plan:
-
-Confidence:
-
-Could not verify:
-
-Action boundary:
-Read-only advisory only. No instance changes were made.
-
-Implementation handoff:
-If implementation is needed, use the official ServiceNow SDK plugin next.
-```
-
-## Proposed Claude Code plugin structure
-
-```text
-servicenow-advisor/
-  .claude-plugin/
-    marketplace.json
-  providers/
-    claude/
-      plugin/
-        skills/
-          sn-advisor-router/
-            SKILL.md
-          sn-source-ranking/
-            SKILL.md
-          sn-instance-readonly/
-            SKILL.md
-          sn-output-templates/
-            SKILL.md
-  skills/
-    sn-advisor-router/
-      SKILL.md
-    sn-source-ranking/
-      SKILL.md
-    sn-instance-readonly/
-      SKILL.md
-    sn-output-templates/
-      SKILL.md
-  commands/
-    advisor.md
-  references/
-    default-resources.json
-    source-trust-policy.md
-    task-resource-matrix.md
-    instance-context-matrix.md
-  scripts/
-    sn-readonly-query.mjs
-```
-
-## MVP build order
-
-1. Claude Code plugin shell.
-2. `/advisor` command.
-3. `sn-advisor-router` skill.
-4. Configurable source policy.
-5. Source trust/ranking reference.
-6. Instance read-only policy reference.
-7. Advisory output template.
-8. Optional read-only SDK helper script.
-
-## Success criteria
-
-The plugin is successful if it:
-
-- Produces task-specific resources, not generic ServiceNow advice.
-- Cites sources.
-- Separates official docs from community/weak signals.
-- Uses live instance data when an SDK auth profile is available.
-- Stays read-only.
-- Says what it could not verify.
-- Gives practical next checks and test plans.
-- Hands implementation to the official ServiceNow SDK plugin.
+MIT © OperatorZero. Not affiliated with or endorsed by ServiceNow, Inc. ServiceNow is a trademark of ServiceNow, Inc.; it is used here only to describe compatibility.

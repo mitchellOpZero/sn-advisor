@@ -1,14 +1,14 @@
 ---
 name: sn-output-templates
-description: Output templates for ServiceNow advisor briefs, risk reviews, test plans, and SDK handoffs.
+description: Output templates for SN Advisor briefs, risk reviews, test plans, and SDK handoffs.
 ---
 
-# ServiceNow Advisor Output Templates
+# SN Advisor Output Templates
 
 ## Standard advisory brief
 
 ```text
-ServiceNow Advisor Brief
+SN Advisor Brief
 
 Task understood:
 

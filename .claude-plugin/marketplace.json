@@ -1,14 +1,19 @@
 {
-  "name": "servicenow-advisor",
+  "name": "sn-advisor",
   "owner": {
-    "name": "OperatorZero"
+    "name": "OperatorZero",
+    "url": "https://github.com/mitchellOpZero"
+  },
+  "metadata": {
+    "description": "SN Advisor by OperatorZero — read-only ServiceNow task advisor for Claude Code.",
+    "version": "0.2.0"
   },
   "plugins": [
     {
       "name": "advisor",
       "source": "./providers/claude/plugin/",
-      "description": "Read-only ServiceNow task advisor using configurable online resources and SDK auth profiles for instance context.",
-      "version": "0.1.0",
+      "description": "SN Advisor by OperatorZero — read-only ServiceNow task advisor. Researches official docs and community sources, ranks them by trust, checks read-only instance context via ServiceNow SDK auth profiles, and returns a cited brief with risks, checklists, and test plans.",
+      "version": "0.2.0",
       "author": {
         "name": "OperatorZero"
       }

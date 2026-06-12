@@ -3,7 +3,7 @@ name: sn-advisor-router
 description: Use only for ServiceNow read-only advisory/research tasks, especially when the user explicitly invokes /advisor or asks for current online resources, best practices, risk assessment, upgrade readiness, troubleshooting context, or says “what should I look out for.” Do not use for direct implementation/code/deploy tasks; let the official ServiceNow SDK plugin handle those.
 ---
 
-# ServiceNow Advisor Router
+# SN Advisor Router
 
 This skill routes ServiceNow advisory work. It is intentionally narrow so it can coexist with the official ServiceNow SDK plugin.
 
