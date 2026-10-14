@@ -7,6 +7,10 @@ description: Use ServiceNow SDK auth profiles for read-only instance context. Ne
 
 Use this skill when advisor output would be materially improved by checking live instance context.
 
+First apply `${CLAUDE_PLUGIN_ROOT}/references/configuration-policy.md`. If the
+activation mode does not permit this run, or `instance_readonly.enabled` is
+`false`, do not discover auth profiles or contact an instance.
+
 ## Access model
 
 Use ServiceNow SDK auth profiles only.
@@ -89,8 +93,10 @@ Integrations:
 
 ## Output language
 
-Always state:
+Only after a successful instance read, state:
 
 "Read-only instance context checked. No instance changes were made."
 
-If instance access is unavailable, state what could not be verified and continue using online sources.
+If instance access is disabled, unavailable, or fails, state that status and what
+could not be verified. Never claim that instance context was checked in those
+cases. Continue using online sources only when `web_search.enabled` is `true`.

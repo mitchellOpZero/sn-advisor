@@ -15,6 +15,9 @@ claude plugin install advisor@sn-advisor
 
 Restart your Claude Code session and `/sn-advisor` is available.
 
+If Claude Code displays plugin-prefixed commands, use `/advisor:sn-advisor`.
+Both explicit invocation forms qualify in manual mode.
+
 ## Use
 
 ```text
@@ -54,7 +57,8 @@ When useful, the advisor reads live instance context through your existing **Ser
 - ServiceNow ACLs and the selected auth profile are the access boundary; the advisor adds no credentials of its own.
 - Record limits are enforced (default 100 per query).
 
-If no profile is available, the advisor says what it could not verify and continues with online sources only.
+If no profile is available, the advisor says what it could not verify and continues
+with online sources only when `web_search.enabled` is `true`.
 
 ## Configuration
 
@@ -70,6 +74,17 @@ See [examples/sn-advisor.config.example.json](examples/sn-advisor.config.example
 - `advisor_first`: runs before implementation for research/risk/upgrade/troubleshooting prompts.
 - `passive`: available if referenced, never proactive.
 - `disabled`: installed but inactive.
+
+The first existing project or user config overrides the plugin defaults; omitted
+fields retain their defaults, nested objects merge, and arrays replace the default
+array (including empty arrays). An unreadable or malformed selected config stops
+external access until corrected.
+
+`web_search.enabled: false` skips web searches and external source fetches.
+`instance_readonly.enabled: false` skips auth-profile discovery and instance
+queries. `disabled` mode blocks both even when the command is invoked explicitly.
+See [configuration-policy.md](providers/claude/plugin/references/configuration-policy.md)
+for the complete activation and access rules.
 
 ## Relationship to the official ServiceNow SDK plugin
 
@@ -93,6 +108,24 @@ providers/claude/plugin/               # the installable Claude Code plugin
   references/                          # default sources, trust policy, task & instance matrices
 examples/sn-advisor.config.example.json
 ```
+
+## Validation
+
+From the repository root, with Python 3.10 or newer and no third-party packages:
+
+```bash
+python3 scripts/validate_repository.py
+python3 -m unittest discover -s tests -v
+```
+
+These checks validate shipped JSON configuration, GET-only methods, positive
+limits, plugin/marketplace consistency, and required package files. They also run
+in GitHub Actions. They do not execute Claude Code or test a live ServiceNow
+instance: this plugin's runtime behavior is instruction-driven.
+
+For a manual smoke test, use temporary project configs to check that `disabled`
+mode makes no external calls, each access flag disables its respective tools,
+and unavailable instance access is reported without claiming a successful read.
 
 ## License
 

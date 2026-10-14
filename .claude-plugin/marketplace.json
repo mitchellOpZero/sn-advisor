@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "SN Advisor by OperatorZero — read-only ServiceNow task advisor for Claude Code.",
-    "version": "0.2.1"
+    "version": "0.2.2"
   },
   "plugins": [
     {
       "name": "advisor",
       "source": "./providers/claude/plugin/",
       "description": "SN Advisor by OperatorZero — read-only ServiceNow task advisor. Researches official docs and community sources, ranks them by trust, checks read-only instance context via ServiceNow SDK auth profiles, and returns a cited brief with risks, checklists, and test plans.",
-      "version": "0.2.1",
+      "version": "0.2.2",
       "author": {
         "name": "OperatorZero"
       }

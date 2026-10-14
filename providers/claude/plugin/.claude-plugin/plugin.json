@@ -1,6 +1,6 @@
 {
   "name": "advisor",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "SN Advisor by OperatorZero — read-only ServiceNow task advisor. Researches official docs and community sources, ranks them by trust, checks read-only instance context via ServiceNow SDK auth profiles, and returns a cited brief with risks, checklists, and test plans.",
   "author": {
     "name": "OperatorZero",

@@ -1,6 +1,6 @@
 ---
 name: sn-advisor-router
-description: Use only for ServiceNow read-only advisory/research tasks, especially when the user explicitly invokes /advisor or asks for current online resources, best practices, risk assessment, upgrade readiness, troubleshooting context, or says “what should I look out for.” Do not use for direct implementation/code/deploy tasks; let the official ServiceNow SDK plugin handle those.
+description: Route ServiceNow read-only advisory/research tasks subject to the configured activation mode. In the default manual mode, run only when the user explicitly invokes /sn-advisor or /advisor:sn-advisor. Do not use for direct implementation/code/deploy tasks; let the official ServiceNow SDK plugin handle those.
 ---
 
 # SN Advisor Router
@@ -9,7 +9,13 @@ This skill routes ServiceNow advisory work. It is intentionally narrow so it can
 
 ## Use this skill when
 
-- The user explicitly invokes `/sn-advisor`.
+First load `${CLAUDE_PLUGIN_ROOT}/references/configuration-policy.md`, resolve
+configuration, and enforce its activation and access gates. The task types below
+are eligible only when the configured mode permits activation. In `manual` mode,
+only explicit `/sn-advisor` or `/advisor:sn-advisor` invocation qualifies; in
+`disabled` mode, stop.
+
+- The user explicitly invokes `/sn-advisor` or `/advisor:sn-advisor`.
 - The user asks for ServiceNow research.
 - The user asks for current docs/community/support signals.
 - The user asks for best practices.
@@ -49,10 +55,10 @@ For implementation, defer to the official ServiceNow SDK plugin.
    - Instance Scan / HealthScan-style review
    - SDK/source-code task
    - debugging / troubleshooting
-3. Load configured source policy.
-4. Search relevant online resources.
+3. Load configured source policy, preserving the activation and access gates checked above.
+4. Search relevant online resources only when `web_search.enabled` is `true`.
 5. Rank sources by trust.
-6. Pull read-only instance context through ServiceNow SDK auth profiles when useful.
+6. Pull read-only instance context through ServiceNow SDK auth profiles only when `instance_readonly.enabled` is `true` and it is useful. When disabled, do not discover profiles or contact an instance.
 7. Produce the advisory brief.
 8. State explicitly that no changes were made.
 9. If implementation is requested next, hand off to the official ServiceNow SDK plugin.
